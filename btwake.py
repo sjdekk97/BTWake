@@ -1,4 +1,6 @@
 from bluetooth import *
+from uuid import getnode as get_mac
+import time
 
 
 def wake_on_lan(macaddress):
@@ -28,11 +30,16 @@ def wake_on_lan(macaddress):
     sock.sendto(send_data, ('<broadcast>', 7))
 
 
-print "performing bt inquiry... for(" + sys.argv[1] + ")"
-
-nearby_devices = discover_devices(lookup_names=True)
-
-for addr, name in nearby_devices:
-    if name == sys.argv[1]:
-        wake_on_lan(addr)
-        print "Sending WOL Magic Packet to: %s - %s" % (addr, name)
+# loop forever, try to find, retry in 1 second
+while 1 == 1:
+    hostname = "192.168.1.3"  # maybe?
+    response = os.system("ping -c 1 " + hostname)
+    # and then check the response...
+    if response == 0:
+        print "performing bt inquiry... for(" + sys.argv[1] + ")"
+        nearby_devices = discover_devices(lookup_names=True)
+        for addr, name in nearby_devices:
+            if name == sys.argv[1]:
+                wake_on_lan(get_mac())  # wont work, need to get host address
+                print "Sending WOL Magic Packet to: %s - %s" % (addr, name)
+    time.sleep(1000)
